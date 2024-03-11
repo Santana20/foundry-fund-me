@@ -17,10 +17,10 @@ contract FundMe {
 
     uint256 public constant MINIMUM_USD = 5 * 1e18;
 
-    address[] public funders;
-    mapping (address funders => uint256 amountFunded) public addressToAmountFunded;
+    address[] private s_funders;
+    mapping (address funders => uint256 amountFunded) private s_addressToAmountFunded;
 
-    address public immutable i_owner;
+    address private immutable i_owner;
 
     AggregatorV3Interface private s_priceFeed;
 
@@ -63,21 +63,21 @@ contract FundMe {
         
         require(msg.value.getConversionRate(s_priceFeed) >= MINIMUM_USD, "didn't send enough ETH"); // 1 ETH
 
-        funders.push(msg.sender);
-        addressToAmountFunded[msg.sender] += msg.value;
+        s_funders.push(msg.sender);
+        s_addressToAmountFunded[msg.sender] += msg.value;
     }
 
     function withdraw() public onlyOwner {
         // for loop
-        for(uint256 funderIndex = 0; funderIndex < funders.length; funderIndex++) {
-            address funder = funders[funderIndex];
+        for(uint256 funderIndex = 0; funderIndex < s_funders.length; funderIndex++) {
+            address funder = s_funders[funderIndex];
 
-            addressToAmountFunded[funder] = 0;
+            s_addressToAmountFunded[funder] = 0;
 
         }
 
-        // reset funders array
-        funders = new address[](0);
+        // reset s_funders array
+        s_funders = new address[](0);
         // withdraw the funds
 
         // 3 ways:
@@ -91,4 +91,19 @@ contract FundMe {
         require(callSuccess, "Call failed");
     }
 
+
+    // View / Pure functions (Getters)
+    function getAddressToAmountFunded(
+        address fundingAddress
+    ) external view returns(uint256) {
+        return s_addressToAmountFunded[fundingAddress];
+    }
+
+    function getFunder(uint256 index) external view returns(address) {
+        return s_funders[index];
+    }
+    
+    function getOwner() external view returns(address) {
+        return i_owner;
+    }
 }
