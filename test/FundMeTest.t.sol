@@ -23,8 +23,8 @@ contract FundMeTest is Test {
         assertEq(fundMe.i_owner(), msg.sender);
     }
 
-    // function testPriceFeedVersionIsAccurate() public {
-    //     uint256 version = fundMe.getVersion();
-    //     assertEq(version, 4);
-    // }
+    function testPriceFeedVersionIsAccurate() public {
+        uint256 version = fundMe.getVersion();
+        assertEq(version, 4);
+    }
 }
